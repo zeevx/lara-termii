@@ -1,10 +1,13 @@
-# Very short description of the package
+<p align="center">
+    <img title="Termii" src="https://termii.com/assets/images/logo.png"/>
+</p>
+
+## Termii Laravel Package
+The TERMII CLI application helps you Set up, test, and manage your Termii integration directly from the terminal.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/zeevx/lara-termii.svg?style=flat-square)](https://packagist.org/packages/zeevx/lara-termii)
 [![Total Downloads](https://img.shields.io/packagist/dt/zeevx/lara-termii.svg?style=flat-square)](https://packagist.org/packages/zeevx/lara-termii)
-![GitHub Actions](https://github.com/zeevx/lara-termii/actions/workflows/main.yml/badge.svg)
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
 
 ## Installation
 
@@ -14,25 +17,43 @@ You can install the package via composer:
 composer require zeevx/lara-termii
 ```
 
-## Usage
 
-```php
-// Usage description here
-```
+## Usage:
 
-### Testing
+### Declare Instance of Class
+- Example `$termii = new \Zeevx\LaraTermii\LaraTermii("YOUR-TERMII-API-KEY");`
 
-```bash
-composer test
-```
+###  Check your balance on Termii
+- You can check your termii balance.
+- Run `$termii->balance()`
 
-### Changelog
+### Reports for messages sent across the sms, voice & whatsapp channels
+- You can check reports for messages sent across the sms, voice & whatsapp channels.
+- Run `$termii->history()`
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+### Detect if a number is fake or has ported to a new network
+- You can check if a number is fake or has ported to a new network.
+- Run `$termii->status()` and pass appropriate params
 
-## Contributing
+### Verify phone numbers and automatically detect their status
+- You can verify phone numbers and automatically detect their status.
+- Run `$termii->search()` and pass appropriate params
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+### Retrieve the status of all registered sender ID
+- You can retrieve the status of all registered sender ID.
+- Run `$termii->allSenderId()`
+
+### Request a new sender ID
+- You can request a new sender ID.
+- Run `$termii->submitSenderId()` and pass appropriate params
+
+### Send OTP
+- Coming soon
+
+### OTP Validation
+- Coming soon
+
+
 
 ### Security
 
@@ -46,7 +67,3 @@ If you discover any security related issues, please email adamsohiani@gmail.com 
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
-
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).

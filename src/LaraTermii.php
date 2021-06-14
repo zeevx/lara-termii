@@ -74,8 +74,9 @@ class LaraTermii
     }
 
     /*
-     * Get Balance
-     */
+	* Method name: balance.
+	* Description: returns your total balance and balance information from your wallet, such as currency.
+	*/
     public function balance()
     {
         $request = Http::get("{$this->base}get-balance?api_key={$this->key}");
@@ -87,7 +88,8 @@ class LaraTermii
     }
 
     /*
-     * View History of messages sent
+     * Method name: getBalance.
+     * Description: returns your sent messages.
      */
     public function history()
     {
@@ -105,8 +107,10 @@ class LaraTermii
     }
 
     /*
-     * Check Status of a number
-     */
+   * Method name: status.
+   * Description: allows businesses verify phone numbers and automatically detect their status as well as current network.
+   * params: phone_number and country_code.
+   */
     public function status(int $phone_number, string $country_code)
     {
         $request = Http::get("{$this->base}insight/number/query?api_key={$this->key}&phone_number={$phone_number}&country_code={$country_code}");
@@ -120,8 +124,10 @@ class LaraTermii
     }
 
     /*
-     * Search/Check info of a number
-     */
+	* Method name: search.
+	* Description: returns the status of a phone number.
+	* params: phone_number.
+	*/
     public function search(int $phone_number)
     {
         $request = Http::get("{$this->base}check/dnd?api_key={$this->key}&phone_number={$phone_number}");
@@ -209,5 +215,16 @@ class LaraTermii
         }
         return $this->checkStatus($status)->content();
     }
+
+    public function otp()
+    {
+
+    }
+
+    public function verifyOtp($otp)
+    {
+
+    }
+
 
 }
