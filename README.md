@@ -3,7 +3,7 @@
 </p>
 
 ## Termii Laravel Package
-The TERMII CLI application helps you Set up, test, and manage your Termii integration directly from the terminal.
+Lara-Termii helps you Set up, test, and manage your Termii integration directly in your Laravel App.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/zeevx/lara-termii.svg?style=flat-square)](https://packagist.org/packages/zeevx/lara-termii)
 [![Total Downloads](https://img.shields.io/packagist/dt/zeevx/lara-termii.svg?style=flat-square)](https://packagist.org/packages/zeevx/lara-termii)
