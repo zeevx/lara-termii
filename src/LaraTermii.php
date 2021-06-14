@@ -171,7 +171,7 @@ class LaraTermii
         return $this->checkStatus($status)->content();
     }
 
-    public function sendMessage(int $to, string $from, string $sms, string $media_url = null, string $media_caption = null, string $channel = "generic", bool $media = false)
+    public function sendMessage(int $to, string $from, string $sms, string $channel = "generic", bool $media = false, string $media_url = null, string $media_caption = null)
     {
         $type = "plain";
 
@@ -202,7 +202,9 @@ class LaraTermii
 
         $request = Http::post("https://termii.com/api/sms/send", $data);
         $status = $request->status();
-        if (json_decode($this->checkStatus($status)->content())->success || $status === 404) {
+        //There is a fix here
+        //TODO: Fix
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 400) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
