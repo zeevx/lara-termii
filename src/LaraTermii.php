@@ -25,7 +25,7 @@ class LaraTermii
 
     private function checkStatus(int $status): \Illuminate\Http\JsonResponse
     {
-        if ($status){
+        if ($status) {
             if ($status === 200)
                 return response()->json([
                     'success' => true,
@@ -80,7 +80,7 @@ class LaraTermii
     {
         $request = Http::get("{$this->base}get-balance?api_key={$this->key}");
         $status = $request->status();
-        if (json_decode($this->checkStatus($status)->content())->success){
+        if (json_decode($this->checkStatus($status)->content())->success) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
@@ -93,7 +93,7 @@ class LaraTermii
     {
         $request = Http::get("{$this->base}sms/inbox?api_key={$this->key}");
         $status = $request->status();
-        if (json_decode($this->checkStatus($status)->content())->success){
+        if (json_decode($this->checkStatus($status)->content())->success) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
@@ -113,7 +113,7 @@ class LaraTermii
         $status = $request->status();
         //There is a fix here
         //TODO: Fix
-        if (json_decode($this->checkStatus($status)->content())->success || $status === 400){
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 400) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
@@ -128,7 +128,7 @@ class LaraTermii
         $status = $request->status();
         //There is a fix here
         //TODO: Fix
-        if (json_decode($this->checkStatus($status)->content())->success || $status === 404){
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 404) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
@@ -142,7 +142,7 @@ class LaraTermii
     {
         $request = Http::get("{$this->base}sender-id?api_key={$this->key}");
         $status = $request->status();
-        if (json_decode($this->checkStatus($status)->content())->success){
+        if (json_decode($this->checkStatus($status)->content())->success) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
@@ -165,11 +165,47 @@ class LaraTermii
             "company" => $company
         ]);
         $status = $request->status();
-        if (json_decode($this->checkStatus($status)->content())->success || $status === 404){
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 404) {
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
     }
 
+    public function sendMessage(int $to, string $from, string $sms, string $media_url = null, string $media_caption = null, string $channel = "generic", bool $media = false)
+    {
+        $type = "plain";
+
+        if ($media == true && $channel == "whatsapp") {
+            $channel = "whatsapp";
+
+            $data = [
+                "api_key" => $this->key,
+                "to" => $to,
+                "from" => $from,
+                "type" => $type,
+                "channel" => $channel,
+                "media" => json_encode([
+                    "media.url" => $media_url,
+                    "media.caption" => $media_caption
+                ])
+            ];
+        }
+
+        $data = [
+            "api_key" => $this->key,
+            "to" => $to,
+            "from" => $from,
+            "sms" => $sms,
+            "type" => $type,
+            "channel" => $channel
+        ];
+
+        $request = Http::post("https://termii.com/api/sms/send", $data);
+        $status = $request->status();
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 404) {
+            return $request->getBody()->getContents();
+        }
+        return $this->checkStatus($status)->content();
+    }
 
 }
