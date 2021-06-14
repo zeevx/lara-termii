@@ -86,6 +86,9 @@ class LaraTermii
         return $this->checkStatus($status)->content();
     }
 
+    /*
+     * View History of messages sent
+     */
     public function history()
     {
         $request = Http::get("{$this->base}sms/inbox?api_key={$this->key}");
@@ -101,6 +104,9 @@ class LaraTermii
         //Will be added later
     }
 
+    /*
+     * Check Status of a number
+     */
     public function status(int $phone_number, string $country_code)
     {
         $request = Http::get("{$this->base}insight/number/query?api_key={$this->key}&phone_number={$phone_number}&country_code={$country_code}");
@@ -113,6 +119,9 @@ class LaraTermii
         return $this->checkStatus($status)->content();
     }
 
+    /*
+     * Search/Check info of a number
+     */
     public function search(int $phone_number)
     {
         $request = Http::get("{$this->base}check/dnd?api_key={$this->key}&phone_number={$phone_number}");
@@ -125,13 +134,15 @@ class LaraTermii
         return $this->checkStatus($status)->content();
     }
 
+
+    /*
+     * Fetch all Sender Ids
+     */
     public function allSenderId()
     {
         $request = Http::get("{$this->base}sender-id?api_key={$this->key}");
         $status = $request->status();
-        //There is a fix here
-        //TODO: Fix
-        if (json_decode($this->checkStatus($status)->content())->success || $status === 404){
+        if (json_decode($this->checkStatus($status)->content())->success){
             return $request->getBody()->getContents();
         }
         return $this->checkStatus($status)->content();
@@ -140,6 +151,24 @@ class LaraTermii
     public function senderIdStatus()
     {
         //Will be added later
+    }
+
+    /*
+     * Submit Sender ID
+     */
+    public function submitSenderId(string $sender_id, string $use_case, string $company)
+    {
+        $request = Http::post("{$this->base}sender-id/request", [
+            "api_key" => $this->key,
+            "sender_id" => $sender_id,
+            "usecase" => $use_case,
+            "company" => $company
+        ]);
+        $status = $request->status();
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 404){
+            return $request->getBody()->getContents();
+        }
+        return $this->checkStatus($status)->content();
     }
 
 
