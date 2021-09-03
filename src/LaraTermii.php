@@ -133,7 +133,7 @@ class LaraTermii
 	*/
     public function search(int $phone_number): string
     {
-        $request = Http::get("{$this->base}check/dnd?api_key={$this->key}&phone_number={$phone_number}");
+        $request = Http::get($this->base("check/dnd?api_key={$this->key}&phone_number={$phone_number}"));
         $status = $request->status();
         //There is a fix here
         //TODO: Fix
