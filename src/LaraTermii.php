@@ -22,7 +22,7 @@ class LaraTermii
 
     private function base($url): string
     {
-        return "https://termii.com/api/{$url}";
+        return "https://api.ng.termii.com/{$url}";
     }
 
 
