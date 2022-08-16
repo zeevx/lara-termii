@@ -201,22 +201,6 @@ class LaraTermii implements LaraTermiiContract
     {
         $type = "plain";
 
-        if ($media == true && $channel == "whatsapp") {
-            $channel = "whatsapp";
-
-            $data = [
-                "api_key" => $this->key,
-                "to"      => $to,
-                "from"    => $from,
-                "type"    => $type,
-                "channel" => $channel,
-                "media"   => json_encode([
-                    "media.url"     => $media_url,
-                    "media.caption" => $media_caption
-                ])
-            ];
-        }
-
         $data = [
             "api_key" => $this->key,
             "to"      => $to,
@@ -226,6 +210,15 @@ class LaraTermii implements LaraTermiiContract
             "channel" => $channel
         ];
 
+        if ($media === true && $channel === "whatsapp") {
+            $channel = "whatsapp";
+
+            $data['media'] = json_encode([
+                "media.url"     => $media_url,
+                "media.caption" => $media_caption
+            ], JSON_THROW_ON_ERROR);
+        }
+
         $request = Http::post($this->base("sms/send"), $data);
         $status = $request->status();
         //There is a fix here
@@ -233,15 +226,28 @@ class LaraTermii implements LaraTermiiContract
         if (json_decode($this->checkStatus($status)->content())->success || $status === 400) {
             return $request->getBody()->getContents();
         }
+
         return $this->checkStatus($status)->content();
     }
 
 
-    /*
-	* Method name: sendOTP.
-	* Description: Send OTP.
-	* params: to, from, message_type, pin_attempts, pin_time_to_live, pin_length, pin_placeholder,message_text, channel.
-	*/
+    /**
+     * Method name: sendOTP.
+     * Description: Send OTP.
+     * params: to, from, message_type, pin_attempts, pin_time_to_live, pin_length, pin_placeholder,message_text, channel.
+     *
+     * @param int    $to
+     * @param string $from
+     * @param string $message_type
+     * @param int    $pin_attempts
+     * @param int    $pin_time_to_live
+     * @param int    $pin_length
+     * @param string $pin_placeholder
+     * @param string $message_text
+     * @param string $channel
+     *
+     * @return string
+     */
     public function sendOTP(int $to, string $from, string $message_type, int $pin_attempts, int $pin_time_to_live, int $pin_length, string $pin_placeholder, string $message_text, string $channel = "generic"): string
     {
         $data = [
@@ -267,11 +273,18 @@ class LaraTermii implements LaraTermiiContract
     }
 
 
-    /*
-   * Method name: sendVoiceOTP.
-   * Description: Send Voice OTP.
-   * params: to, from, pin_attempts, pin_time_to_live, pin_length.
-   */
+    /**
+     * Method name: sendVoiceOTP.
+     * Description: Send Voice OTP.
+     * params: to, from, pin_attempts, pin_time_to_live, pin_length.
+     *
+     * @param int $to
+     * @param int $pin_attempts
+     * @param int $pin_time_to_live
+     * @param int $pin_length
+     *
+     * @return string
+     */
     public function sendVoiceOTP(int $to, int $pin_attempts, int $pin_time_to_live, int $pin_length): string
     {
         $data = [
@@ -292,11 +305,16 @@ class LaraTermii implements LaraTermiiContract
     }
 
 
-    /*
-   * Method name: Voice Call.
-   * Description: Send voice call.
-   * params: to, code.
-   */
+    /**
+     * Method name: Voice Call.
+     * Description: Send voice call.
+     * params: to, code.
+     *
+     * @param int $to
+     * @param int $code
+     *
+     * @return string
+     */
     public function sendVoiceCall(int $to, int $code): string
     {
         $data = [
@@ -314,6 +332,12 @@ class LaraTermii implements LaraTermiiContract
         return $this->checkStatus($status)->content();
     }
 
+    /**
+     * @param string $pinId
+     * @param string $pin
+     *
+     * @return string
+     */
     public function verifyOTP(string $pinId, string $pin): string
     {
         $data = [
@@ -332,11 +356,19 @@ class LaraTermii implements LaraTermiiContract
 
     }
 
-    /*
-	* Method name: sendInAppOTP.
-	* Description: Send In-App OTP.
-	* params: to, from, message_type, pin_attempts, pin_time_to_live, pin_length, pin_placeholder,message_text, channel.
-	*/
+    /**
+     * Method name: sendInAppOTP.
+     * Description: Send In-App OTP.
+     * params: to, from, message_type, pin_attempts, pin_time_to_live, pin_length, pin_placeholder,message_text, channel.
+     *
+     * @param int    $to
+     * @param int    $pin_attempts
+     * @param int    $pin_time_to_live
+     * @param int    $pin_length
+     * @param string $pin_type
+     *
+     * @return string
+     */
     public function sendInAppOTP(int $to, int $pin_attempts, int $pin_time_to_live, int $pin_length, string $pin_type): string
     {
 
@@ -357,6 +389,4 @@ class LaraTermii implements LaraTermiiContract
         }
         return $this->checkStatus($status)->content();
     }
-
-
 }
