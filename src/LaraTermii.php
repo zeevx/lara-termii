@@ -185,7 +185,6 @@ class LaraTermii
     }
 
 
-
     /*
 	* Method name: sendMessage.
 	* Description: Send Message.
@@ -231,7 +230,6 @@ class LaraTermii
     }
 
 
-
     /*
 	* Method name: sendOTP.
 	* Description: Send OTP.
@@ -262,7 +260,6 @@ class LaraTermii
     }
 
 
-
     /*
    * Method name: sendVoiceOTP.
    * Description: Send Voice OTP.
@@ -286,7 +283,6 @@ class LaraTermii
         }
         return $this->checkStatus($status)->content();
     }
-
 
 
     /*
@@ -347,6 +343,30 @@ class LaraTermii
         ];
 
         $request = Http::post($this->base("sms/otp/generate"), $data);
+        $status = $request->status();
+
+        if (json_decode($this->checkStatus($status)->content())->success || $status === 400) {
+            return $request->getBody()->getContents();
+        }
+        return $this->checkStatus($status)->content();
+    }
+
+    /*
+     * Method name: sendEmailOTP
+     * Description: Send OTP to email
+     * params: email, code, email_configuration_id
+     */
+
+    public function sendEmailOTP(string $email, string $code, string $email_configuration_id): string
+    {
+        $data = [
+            "api_key" => $this->key,
+            "email_address" => $email,
+            "code" => $code,
+            "email_configuration_id" => $email_configuration_id
+        ];
+
+        $request = Http::post($this->base("email/otp/send"), $data);
         $status = $request->status();
 
         if (json_decode($this->checkStatus($status)->content())->success || $status === 400) {
