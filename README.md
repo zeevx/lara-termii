@@ -70,6 +70,9 @@ composer require zeevx/lara-termii
 - You can send In-App OTP
 - Run `$termii->sendInAppOTP(int $to, int $pin_attempts, int $pin_time_to_live, int $pin_length, string $pin_type)` and pass appropriate params
 
+### Send OTP to Email
+- You can send OTP to email
+- Run `$termii->sendEmailOTP(string $email, string $code, string $email_configuration_id)` and pass appropriate params. "email_configuration_id" is the "config id" you've added in your Termii dashboard under "Email Setup" menu.
 
 ### Security
 
