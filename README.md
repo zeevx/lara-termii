@@ -12,15 +12,10 @@ A modern Laravel package for the [Termii](https://www.termii.com) messaging, voi
 
 ## Requirements
 
-- PHP 7.4+ (works through PHP 8.4)
-- Laravel 7 through 13
+- PHP 8.1 through 8.4
+- Laravel 9 through 13
 
-> Laravel 6 is not supported: it predates Laravel's HTTP client
-> (`Illuminate\Http\Client`), which this package is built on.
-
-> **Note for PHP 7.4 users:** the examples below use PHP 8.0 named arguments for
-> readability. On PHP 7.4 pass the arguments positionally instead, e.g.
-> `$termii->sendMessage('2348012345678', null, 'Hello');`
+> Still on an older stack? Lara-Termii **v1.x** supports Laravel 6–9 / PHP 7.4+.
 
 ## Installation
 
@@ -242,10 +237,8 @@ composer lint    # check code style (pint --test)
 composer format  # fix code style (pint)
 ```
 
-> The test suite runs on the full support range (PHP 7.4+ / Laravel 7+), but
-> Pint itself requires PHP 8.1+. It is a dev-only dependency and never affects
-> what your application needs. Contribute on PHP 8.1+ to use it; the CI test
-> matrix removes Pint on the PHP 7.4/8.0 legs so tests still run there.
+> Pint and Pest are dev-only dependencies and never affect what your
+> application needs at runtime.
 
 ## Upgrading from v1
 

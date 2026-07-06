@@ -23,9 +23,7 @@ Modernized release.
 ### Changed
 - **BREAKING:** every method now returns `Illuminate\Http\Client\Response`
   instead of a raw JSON string. Use `->json()` / `->body()`.
-- **BREAKING:** requires PHP 7.4+ and Laravel 7 through 13 (Laravel 6 is not
-  supported: it predates the `Illuminate\Http\Client` HTTP client this package
-  relies on; v1's `~6` constraint never actually worked there either).
+- **BREAKING:** requires PHP 8.1+ and Laravel 9 through 13.
 - Phone numbers are now typed as `string` instead of `int` so international and
   `+`-prefixed numbers are preserved.
 - `from` on `sendMessage()` and `sendOTP()` now accepts `null` to fall back to

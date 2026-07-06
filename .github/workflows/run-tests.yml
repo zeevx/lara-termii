@@ -13,10 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { php: '7.4', laravel: '7.*',  testbench: '5.*' }
-          - { php: '7.4', laravel: '8.*',  testbench: '6.*' }
-          - { php: '8.0', laravel: '8.*',  testbench: '6.*' }
-          - { php: '8.0', laravel: '9.*',  testbench: '7.*' }
           - { php: '8.1', laravel: '9.*',  testbench: '7.*' }
           - { php: '8.1', laravel: '10.*', testbench: '8.*' }
           - { php: '8.2', laravel: '10.*', testbench: '8.*' }
@@ -41,9 +37,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Pint requires PHP 8.1+; it is not needed to run the tests and would
-          # block installing dev deps on the PHP 7.4/8.0 legs, so drop it here.
-          composer remove laravel/pint --dev --no-interaction --no-update
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --prefer-dist --no-interaction
 
