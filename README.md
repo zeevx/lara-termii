@@ -15,7 +15,7 @@ A modern Laravel package for the [Termii](https://www.termii.com) messaging, voi
 - PHP 8.1 through 8.4
 - Laravel 9 through 13
 
-> Still on an older stack? Lara-Termii **v1.x** supports Laravel 6–9 / PHP 7.4+.
+> Still on an older stack? Lara-Termii **0.1.x** supports Laravel 6–9 / PHP 7.4+.
 
 ## Installation
 
@@ -240,20 +240,21 @@ composer format  # fix code style (pint)
 > Pint and Pest are dev-only dependencies and never affect what your
 > application needs at runtime.
 
-## Upgrading from v1
+## Upgrading from 0.1.x
 
-v2 is a modernized rewrite. Key changes:
+1.0.0 is the first stable release and a modernized rewrite. Key changes from the
+0.1.x line:
 
 - **Return types**: methods now return `Illuminate\Http\Client\Response` instead
   of a raw JSON string. Call `->json()` / `->body()` to get the old data.
 - **Config-driven**: the facade and container binding now work out of the box.
-  Set `TERMII_API_KEY` (v1's binding required a constructor argument and could
-  fatal). `new LaraTermii()` with no arguments reads from config.
+  Set `TERMII_API_KEY` (the 0.1.x binding required a constructor argument and
+  could fatal). `new LaraTermii()` with no arguments reads from config.
 - **Phone numbers are strings** (were `int`), so international/`+`-prefixed
   numbers are preserved.
 - **`sendMessage`**: the first four positional arguments (`to`, `from`, `sms`,
   `channel`) are unchanged, but the old (broken) `bool $media` flag was removed.
-  Any v1 call that passed the media flag and URL positionally, e.g.
+  Any 0.1.x call that passed the media flag and URL positionally, e.g.
   `sendMessage($to, $from, $sms, 'whatsapp', true, $url, $caption)`, must be
   updated to `sendMessage($to, $from, $sms, 'whatsapp', $url, $caption)`. Media
   now works correctly, and a media request no longer sends the `sms` field (per

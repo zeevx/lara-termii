@@ -2,9 +2,10 @@
 
 All notable changes to `lara-termii` will be documented in this file.
 
-## 2.0.0 - 2026-07-06
+## 1.0.0 - 2026-07-06
 
-Modernized release.
+First stable release. A full modernization of the package (previous releases
+were 0.1.x). The changes below are relative to the 0.1.x line.
 
 ### Added
 - Publishable `config/termii.php` with `api_key`, `base_url`, `sender_id`,
@@ -42,8 +43,8 @@ Modernized release.
   and defaults to `https://v3.api.termii.com`.
 
 ### Fixed
-- The facade / container binding no longer fatals. v1 instantiated the class
-  without the required API key argument.
+- The facade / container binding no longer fatals. The 0.1.x line instantiated
+  the class without the required API key argument.
 - WhatsApp media messages now send correctly; the previous implementation built
   the media payload and then immediately discarded it.
 - Removed the redundant per-call status re-parsing that decoded the response
@@ -53,6 +54,6 @@ Modernized release.
 - Empty stub methods `historyStatus()` and `senderIdStatus()`.
 - The non-functional `bool $media` argument on `sendMessage()` (pass `mediaUrl`).
 
-## 1.x
+## 0.1.x
 
-See the git history for the Laravel 6–9 / PHP 7.4 releases.
+See the git history for the earlier Laravel 6–9 / PHP 7.4 releases.
