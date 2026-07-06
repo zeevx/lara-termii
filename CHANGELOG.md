@@ -2,6 +2,32 @@
 
 All notable changes to `lara-termii` will be documented in this file.
 
+## 1.1.0 - 2026-07-06
+
+Adds wrappers for the remaining documented Termii endpoints. All changes are
+additive and backward compatible.
+
+### Added
+- **Messaging:** `sendBulkMessage()` (up to 100 recipients).
+- **Token:** `sendEmailOTP()` (note: email OTPs cannot be verified via
+  `verifyOTP()`).
+- **Templates:** `sendTemplate()` and `sendTemplateWithMedia()` for WhatsApp
+  device templates.
+- **Phonebooks:** `phonebooks()`, `createPhonebook()`, `updatePhonebook()`,
+  `deletePhonebook()`.
+- **Contacts:** `contacts()`, `addContact()`, `addContactsFromFile()` (CSV
+  upload from the local filesystem or any Laravel Storage disk via the `$disk`
+  argument), `addContactsFromContents()` (upload raw CSV contents, e.g. an
+  uploaded file), `deleteContact()`.
+- **Campaigns:** `sendCampaign()`, `campaigns()`, `campaignHistory()`,
+  `retryCampaign()`.
+- Internal `patch()` / `delete()` request helpers.
+
+### Notes
+- Termii's docs do not specify how a contact is identified when deleting, so
+  `deleteContact()` sends the contact id in the request body against the
+  documented `phonebooks/{id}/contacts` path.
+
 ## 1.0.0 - 2026-07-06
 
 First stable release. A full modernization of the package (previous releases

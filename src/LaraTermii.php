@@ -6,6 +6,7 @@ namespace Zeevx\LaraTermii;
 
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Client\PendingRequest;
 use Zeevx\LaraTermii\Exceptions\TermiiException;
 
@@ -112,6 +113,32 @@ class LaraTermii
         return $this->maybeThrow(
             $this->client()->post($this->url($path), array_merge(['api_key' => $this->apiKey], $payload))
         );
+    }
+
+    /**
+     * Perform a PATCH request, always sending the API key in the JSON body.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    protected function patch(string $path, array $payload = []): Response
+    {
+        return $this->maybeThrow(
+            $this->client()->patch($this->url($path), array_merge(['api_key' => $this->apiKey], $payload))
+        );
+    }
+
+    /**
+     * Perform a DELETE request. The API key (and any extra query params) are
+     * sent in the query string; any payload is sent in the request body.
+     *
+     * @param  array<string, mixed>  $query
+     * @param  array<string, mixed>  $payload
+     */
+    protected function delete(string $path, array $query = [], array $payload = []): Response
+    {
+        $url = $this->url($path).'?'.http_build_query(array_merge(['api_key' => $this->apiKey], $query));
+
+        return $this->maybeThrow($this->client()->delete($url, $payload));
     }
 
     /**
@@ -331,5 +358,266 @@ class LaraTermii
             'pin_time_to_live' => $pinTimeToLive,
             'pin_length' => $pinLength,
         ]);
+    }
+
+    /**
+     * Send an email OTP. Note: email OTPs cannot be verified with verifyOTP().
+     */
+    public function sendEmailOTP(string $emailAddress, string $code, string $emailConfigurationId): Response
+    {
+        return $this->post('email/otp/send', [
+            'email_address' => $emailAddress,
+            'code' => $code,
+            'email_configuration_id' => $emailConfigurationId,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bulk & Template Messaging
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Send the same message to many recipients (up to 100) at once.
+     *
+     * @param  array<int, string>  $to
+     */
+    public function sendBulkMessage(array $to, ?string $from, string $sms, ?string $channel = null, string $type = 'plain'): Response
+    {
+        return $this->post('sms/send/bulk', [
+            'to' => array_values($to),
+            'from' => $this->resolveSender($from),
+            'sms' => $sms,
+            'type' => $type,
+            'channel' => $channel ?? $this->channel,
+        ]);
+    }
+
+    /**
+     * Send a message built from a pre-approved WhatsApp device template.
+     *
+     * @param  array<string, mixed>  $data  Values for the template variables.
+     */
+    public function sendTemplate(string $to, string $deviceId, string $templateId, array $data = []): Response
+    {
+        return $this->post('send/template', [
+            'phone_number' => $to,
+            'device_id' => $deviceId,
+            'template_id' => $templateId,
+            'data' => $data,
+        ]);
+    }
+
+    /**
+     * Send a WhatsApp device template message that includes a media attachment.
+     *
+     * @param  array<string, mixed>  $data  Values for the template variables.
+     */
+    public function sendTemplateWithMedia(
+        string $to,
+        string $deviceId,
+        string $templateId,
+        string $mediaUrl,
+        ?string $mediaCaption = null,
+        array $data = []
+    ): Response {
+        return $this->post('send/template/media', [
+            'phone_number' => $to,
+            'device_id' => $deviceId,
+            'template_id' => $templateId,
+            'data' => $data,
+            'media' => array_filter([
+                'url' => $mediaUrl,
+                'caption' => $mediaCaption,
+            ], fn ($value) => $value !== null),
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Phonebooks
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Retrieve all phonebooks on your account.
+     */
+    public function phonebooks(): Response
+    {
+        return $this->get('phonebooks');
+    }
+
+    /**
+     * Create a new phonebook.
+     */
+    public function createPhonebook(string $name, ?string $description = null): Response
+    {
+        return $this->post('phonebooks', array_filter([
+            'phonebook_name' => $name,
+            'description' => $description,
+        ], fn ($value) => $value !== null));
+    }
+
+    /**
+     * Update an existing phonebook.
+     */
+    public function updatePhonebook(string $phonebookId, string $name, ?string $description = null): Response
+    {
+        return $this->patch("phonebooks/{$phonebookId}", array_filter([
+            'phonebook_name' => $name,
+            'description' => $description,
+        ], fn ($value) => $value !== null));
+    }
+
+    /**
+     * Delete a phonebook.
+     */
+    public function deletePhonebook(string $phonebookId): Response
+    {
+        return $this->delete("phonebooks/{$phonebookId}");
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contacts
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Retrieve all contacts in a phonebook.
+     */
+    public function contacts(string $phonebookId): Response
+    {
+        return $this->get("phonebooks/{$phonebookId}/contacts");
+    }
+
+    /**
+     * Add a single contact to a phonebook.
+     */
+    public function addContact(
+        string $phonebookId,
+        string $phoneNumber,
+        ?string $countryCode = null,
+        ?string $emailAddress = null,
+        ?string $firstName = null,
+        ?string $lastName = null,
+        ?string $company = null
+    ): Response {
+        return $this->post("phonebooks/{$phonebookId}/contacts", array_filter([
+            'phone_number' => $phoneNumber,
+            'country_code' => $countryCode,
+            'email_address' => $emailAddress,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'company' => $company,
+        ], fn ($value) => $value !== null));
+    }
+
+    /**
+     * Bulk-add contacts to a phonebook from a CSV file.
+     *
+     * By default $file is a path on the local filesystem. Pass $disk to read it
+     * from a Laravel filesystem disk instead (e.g. 's3', 'local', 'public'):
+     *
+     *     $termii->addContactsFromFile($id, 'imports/contacts.csv', '234', 's3');
+     */
+    public function addContactsFromFile(string $phonebookId, string $file, string $countryCode, ?string $disk = null): Response
+    {
+        $contents = $disk !== null
+            ? Storage::disk($disk)->get($file)
+            : file_get_contents($file);
+
+        return $this->addContactsFromContents($phonebookId, (string) $contents, basename($file), $countryCode);
+    }
+
+    /**
+     * Bulk-add contacts to a phonebook from raw CSV contents.
+     *
+     * Handy when the CSV is not on disk, e.g. an uploaded file:
+     *
+     *     $file = $request->file('csv');
+     *     $termii->addContactsFromContents($id, $file->get(), $file->getClientOriginalName(), '234');
+     */
+    public function addContactsFromContents(string $phonebookId, string $contents, string $filename, string $countryCode): Response
+    {
+        $response = $this->client()
+            ->attach('file', $contents, $filename)
+            ->post($this->url('phonebooks/contacts/upload'), [
+                'api_key' => $this->apiKey,
+                'country_code' => $countryCode,
+                'pid' => $phonebookId,
+            ]);
+
+        return $this->maybeThrow($response);
+    }
+
+    /**
+     * Delete a contact from a phonebook.
+     *
+     * Termii's docs only document the path `phonebooks/{id}/contacts` for this
+     * action without specifying how the contact is identified, so the contact
+     * id is sent in the request body.
+     */
+    public function deleteContact(string $phonebookId, string $contactId): Response
+    {
+        return $this->delete("phonebooks/{$phonebookId}/contacts", [], ['id' => $contactId]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Campaigns
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Send a campaign to every contact in a phonebook.
+     *
+     * @param  array<string, mixed>  $options  Extra fields such as delimiter,
+     *                                         remove_duplicate, campaign_type,
+     *                                         schedule_time, schedule_sms_status
+     *                                         and enable_link_tracking.
+     */
+    public function sendCampaign(
+        string $countryCode,
+        string $senderId,
+        string $message,
+        string $phonebookId,
+        string $channel = 'generic',
+        string $messageType = 'plain',
+        array $options = []
+    ): Response {
+        return $this->post('sms/campaigns/send', array_merge([
+            'country_code' => $countryCode,
+            'sender_id' => $senderId,
+            'message' => $message,
+            'phonebook_id' => $phonebookId,
+            'channel' => $channel,
+            'message_type' => $messageType,
+        ], $options));
+    }
+
+    /**
+     * Retrieve all campaigns on your account.
+     */
+    public function campaigns(): Response
+    {
+        return $this->get('sms/campaigns');
+    }
+
+    /**
+     * Retrieve the history/details of a single campaign.
+     */
+    public function campaignHistory(string $campaignId): Response
+    {
+        return $this->get("sms/campaigns/{$campaignId}");
+    }
+
+    /**
+     * Retry a campaign.
+     */
+    public function retryCampaign(string $campaignId): Response
+    {
+        return $this->patch("sms/campaigns/{$campaignId}");
     }
 }

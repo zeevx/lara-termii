@@ -192,6 +192,116 @@ $termii->sendInAppOTP(
 );
 ```
 
+### Email OTP
+
+Note: email OTPs cannot be verified with `verifyOTP()`.
+
+```php
+$termii->sendEmailOTP(
+    emailAddress: 'user@example.com',
+    code: '123456',
+    emailConfigurationId: 'your-email-config-id'
+);
+```
+
+### Send bulk messages
+
+Send the same message to up to 100 recipients at once.
+
+```php
+$termii->sendBulkMessage(
+    to: ['2348011111111', '2348022222222'],
+    from: null,
+    sms: 'Hello everyone!'
+);
+```
+
+### WhatsApp device templates
+
+```php
+// Plain template
+$termii->sendTemplate(
+    to: '2348012345678',
+    deviceId: 'your-device-id',
+    templateId: 'your-template-id',
+    data: ['product_name' => 'Widget', 'otp' => '1234']
+);
+
+// Template with a media attachment
+$termii->sendTemplateWithMedia(
+    to: '2348012345678',
+    deviceId: 'your-device-id',
+    templateId: 'your-template-id',
+    mediaUrl: 'https://example.com/image.png',
+    mediaCaption: 'Optional caption',
+    data: ['product_name' => 'Widget']
+);
+```
+
+### Phonebooks
+
+```php
+$termii->phonebooks();                                  // fetch all
+$termii->createPhonebook(name: 'VIP', description: 'Best customers');
+$termii->updatePhonebook(phonebookId: 'pb-id', name: 'VIPs');
+$termii->deletePhonebook(phonebookId: 'pb-id');
+```
+
+### Contacts
+
+```php
+$termii->contacts(phonebookId: 'pb-id');                // fetch all in a phonebook
+
+$termii->addContact(
+    phonebookId: 'pb-id',
+    phoneNumber: '2348012345678',
+    countryCode: '234',
+    emailAddress: 'ada@example.com',
+    firstName: 'Ada',
+    lastName: 'Lovelace'
+);
+
+// Bulk-add from a CSV file on the local filesystem
+$termii->addContactsFromFile(phonebookId: 'pb-id', file: '/path/contacts.csv', countryCode: '234');
+
+// ...or from any Laravel filesystem disk (s3, local, public, ...)
+$termii->addContactsFromFile(phonebookId: 'pb-id', file: 'imports/contacts.csv', countryCode: '234', disk: 's3');
+
+// ...or straight from an uploaded file (raw contents)
+$csv = $request->file('csv');
+$termii->addContactsFromContents(
+    phonebookId: 'pb-id',
+    contents: $csv->get(),
+    filename: $csv->getClientOriginalName(),
+    countryCode: '234'
+);
+
+$termii->deleteContact(phonebookId: 'pb-id', contactId: 'contact-id');
+```
+
+### Campaigns
+
+```php
+$termii->sendCampaign(
+    countryCode: '234',
+    senderId: 'Acme',
+    message: 'Welcome to Acme.',
+    phonebookId: 'pb-id',
+    channel: 'generic',
+    messageType: 'plain',
+    options: [
+        'campaign_type' => 'personalized',
+        'remove_duplicate' => 'yes',
+        // 'schedule_time' => '30-06-2026 6:00',
+        // 'schedule_sms_status' => 'scheduled',
+    ]
+);
+
+$termii->campaigns();                          // fetch all
+$termii->campaignHistory(campaignId: 'camp-id');
+$termii->retryCampaign(campaignId: 'camp-id');
+```
+
 ## Error handling
 
 By default a failed request returns the `Response` so you can inspect it:

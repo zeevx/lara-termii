@@ -19,6 +19,23 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Illuminate\Http\Client\Response sendVoiceCall(string $to, int $code)
  * @method static \Illuminate\Http\Client\Response verifyOTP(string $pinId, string $pin)
  * @method static \Illuminate\Http\Client\Response sendInAppOTP(string $to, int $pinAttempts, int $pinTimeToLive, int $pinLength, string $pinType)
+ * @method static \Illuminate\Http\Client\Response sendEmailOTP(string $emailAddress, string $code, string $emailConfigurationId)
+ * @method static \Illuminate\Http\Client\Response sendBulkMessage(array $to, ?string $from, string $sms, ?string $channel = null, string $type = 'plain')
+ * @method static \Illuminate\Http\Client\Response sendTemplate(string $to, string $deviceId, string $templateId, array $data = [])
+ * @method static \Illuminate\Http\Client\Response sendTemplateWithMedia(string $to, string $deviceId, string $templateId, string $mediaUrl, ?string $mediaCaption = null, array $data = [])
+ * @method static \Illuminate\Http\Client\Response phonebooks()
+ * @method static \Illuminate\Http\Client\Response createPhonebook(string $name, ?string $description = null)
+ * @method static \Illuminate\Http\Client\Response updatePhonebook(string $phonebookId, string $name, ?string $description = null)
+ * @method static \Illuminate\Http\Client\Response deletePhonebook(string $phonebookId)
+ * @method static \Illuminate\Http\Client\Response contacts(string $phonebookId)
+ * @method static \Illuminate\Http\Client\Response addContact(string $phonebookId, string $phoneNumber, ?string $countryCode = null, ?string $emailAddress = null, ?string $firstName = null, ?string $lastName = null, ?string $company = null)
+ * @method static \Illuminate\Http\Client\Response addContactsFromFile(string $phonebookId, string $file, string $countryCode, ?string $disk = null)
+ * @method static \Illuminate\Http\Client\Response addContactsFromContents(string $phonebookId, string $contents, string $filename, string $countryCode)
+ * @method static \Illuminate\Http\Client\Response deleteContact(string $phonebookId, string $contactId)
+ * @method static \Illuminate\Http\Client\Response sendCampaign(string $countryCode, string $senderId, string $message, string $phonebookId, string $channel = 'generic', string $messageType = 'plain', array $options = [])
+ * @method static \Illuminate\Http\Client\Response campaigns()
+ * @method static \Illuminate\Http\Client\Response campaignHistory(string $campaignId)
+ * @method static \Illuminate\Http\Client\Response retryCampaign(string $campaignId)
  *
  * @see LaraTermii
  */
