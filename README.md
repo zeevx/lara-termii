@@ -1,7 +1,3 @@
-<p align="center">
-    <img title="Termii" src="https://termii.com/assets/images/logo.png"/>
-</p>
-
 # Lara-Termii
 
 A modern Laravel package for the [Termii](https://www.termii.com) messaging, voice & OTP API. Set up, test, and manage your Termii integration directly in your Laravel app.
