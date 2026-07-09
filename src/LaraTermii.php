@@ -56,7 +56,7 @@ class LaraTermii
             throw TermiiException::missingApiKey();
         }
 
-        $this->baseUrl = rtrim($baseUrl ?? (string) config('termii.base_url', 'https://v3.api.termii.com'), '/');
+        $this->baseUrl = rtrim($baseUrl ?? (string) config('termii.base_url', 'https://v4.api.termii.com'), '/');
         $this->senderId = $senderId ?? config('termii.sender_id');
         $this->channel = $channel ?? (string) config('termii.channel', 'generic');
         $this->timeout = $timeout ?? (int) config('termii.timeout', 30);
@@ -171,10 +171,14 @@ class LaraTermii
 
     /**
      * Retrieve reports for messages sent across the sms, voice & whatsapp channels.
+     *
+     * Pass a message id to retrieve the report for that single message.
      */
-    public function history(): Response
+    public function history(?string $messageId = null): Response
     {
-        return $this->get('sms/inbox');
+        return $this->get('sms/inbox', array_filter([
+            'message_id' => $messageId,
+        ], fn ($value) => $value !== null));
     }
 
     /**
@@ -206,10 +210,16 @@ class LaraTermii
 
     /**
      * Retrieve the status of all registered Sender IDs.
+     *
+     * Results can optionally be filtered by Sender ID name and/or status
+     * ("active", "pending" or "blocked").
      */
-    public function allSenderId(): Response
+    public function allSenderId(?string $name = null, ?string $status = null): Response
     {
-        return $this->get('sender-id');
+        return $this->get('sender-id', array_filter([
+            'name' => $name,
+            'status' => $status,
+        ], fn ($value) => $value !== null));
     }
 
     /**
@@ -271,6 +281,17 @@ class LaraTermii
         return $this->post('sms/send', $payload);
     }
 
+    /**
+     * Send a message from a Termii auto-generated number (no Sender ID needed).
+     */
+    public function sendMessageWithNumber(string $to, string $sms): Response
+    {
+        return $this->post('sms/number/send', [
+            'to' => $to,
+            'sms' => $sms,
+        ]);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Token / OTP
@@ -326,6 +347,8 @@ class LaraTermii
 
     /**
      * Send a specific code to a recipient via a voice call.
+     *
+     * Voice call codes cannot be verified with verifyOTP().
      */
     public function sendVoiceCall(string $to, int $code): Response
     {
@@ -541,13 +564,16 @@ class LaraTermii
      */
     public function addContactsFromContents(string $phonebookId, string $contents, string $filename, string $countryCode): Response
     {
+        $contact = json_encode([
+            'pid' => $phonebookId,
+            'country_code' => $countryCode,
+            'api_key' => $this->apiKey,
+        ]);
+
         $response = $this->client()
             ->attach('file', $contents, $filename)
-            ->post($this->url('phonebooks/contacts/upload'), [
-                'api_key' => $this->apiKey,
-                'country_code' => $countryCode,
-                'pid' => $phonebookId,
-            ]);
+            ->attach('contact', (string) $contact, null, ['Content-Type' => 'application/json'])
+            ->post($this->url('phonebooks/contacts/upload'));
 
         return $this->maybeThrow($response);
     }
@@ -573,9 +599,11 @@ class LaraTermii
     /**
      * Send a campaign to every contact in a phonebook.
      *
+     * @param  string  $campaignType  "regular" or "personalized".
+     * @param  string  $scheduleSmsStatus  "regular" or "scheduled" (pass
+     *                                     schedule_time via $options when scheduled).
      * @param  array<string, mixed>  $options  Extra fields such as delimiter,
-     *                                         remove_duplicate, campaign_type,
-     *                                         schedule_time, schedule_sms_status
+     *                                         remove_duplicate, schedule_time
      *                                         and enable_link_tracking.
      */
     public function sendCampaign(
@@ -585,6 +613,8 @@ class LaraTermii
         string $phonebookId,
         string $channel = 'generic',
         string $messageType = 'plain',
+        string $campaignType = 'regular',
+        string $scheduleSmsStatus = 'regular',
         array $options = []
     ): Response {
         return $this->post('sms/campaigns/send', array_merge([
@@ -594,6 +624,8 @@ class LaraTermii
             'phonebook_id' => $phonebookId,
             'channel' => $channel,
             'message_type' => $messageType,
+            'campaign_type' => $campaignType,
+            'schedule_sms_status' => $scheduleSmsStatus,
         ], $options));
     }
 

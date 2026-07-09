@@ -2,6 +2,37 @@
 
 All notable changes to `lara-termii` will be documented in this file.
 
+## 1.2.0 - 2026-07-09
+
+Audited every wrapped endpoint against the current Termii docs
+(https://developers.termii.com/). Paths, verbs, payload keys and API key
+placement were confirmed correct; the changes below cover the differences
+that were found.
+
+### Added
+- `sendMessageWithNumber()` for the Number API (`sms/number/send`): send a
+  message from a Termii auto-generated number without a Sender ID.
+- `allSenderId()` now accepts optional `name` and `status` filters.
+- `history()` now accepts an optional `message_id` to fetch a single report.
+- `sendCampaign()` now exposes `campaign_type` and `schedule_sms_status`
+  (both documented as required by Termii) as explicit parameters, defaulting
+  to `regular`.
+
+### Changed
+- **BREAKING (minor):** `sendCampaign()`'s `$options` array moved from the
+  7th to the 9th positional parameter. Calls passing `$options` positionally
+  must switch to named arguments or add the two new arguments; values passed
+  via `$options` still override the new defaults.
+- The constructor fallback, README and tests now consistently use the
+  `https://v4.api.termii.com` default base URL that the config file already
+  used.
+
+### Fixed
+- `addContactsFromContents()` (and therefore `addContactsFromFile()`) now
+  sends the bulk contact CSV upload in the format the current docs specify: a
+  `file` part plus a single JSON `contact` part containing `pid`,
+  `country_code` and `api_key`, instead of flat form fields.
+
 ## 1.1.0 - 2026-07-06
 
 Adds wrappers for the remaining documented Termii endpoints. All changes are

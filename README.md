@@ -36,8 +36,9 @@ Then add your Termii credentials to your `.env` file:
 ```dotenv
 TERMII_API_KEY=your-termii-api-key
 TERMII_SENDER_ID=YourSenderID
-# Optional – Termii now issues an account-specific base URL (see your dashboard)
-TERMII_BASE_URL=https://v3.api.termii.com
+# Optional: Termii issues an account-specific, region-based base URL.
+# Find yours on your dashboard and set it here (defaults to the v4 host).
+TERMII_BASE_URL=https://v4.api.termii.com
 # Optional defaults
 TERMII_CHANNEL=generic
 TERMII_TIMEOUT=30
@@ -78,7 +79,7 @@ use Zeevx\LaraTermii\LaraTermii;
 
 $termii = new LaraTermii(); // uses config('termii.*')
 // or override per instance:
-$termii = new LaraTermii('another-api-key', 'https://v3.api.termii.com');
+$termii = new LaraTermii('another-api-key', 'https://v4.api.termii.com');
 ```
 
 ### Check your balance
@@ -93,6 +94,9 @@ Reports for messages sent across the sms, voice & whatsapp channels.
 
 ```php
 $termii->history();
+
+// or a single message's report
+$termii->history(messageId: 'message-id');
 ```
 
 ### Verify a number & detect its network
@@ -112,6 +116,9 @@ $termii->search(phoneNumber: '2348012345678');
 ```php
 // Retrieve the status of all registered Sender IDs
 $termii->allSenderId();
+
+// Optionally filter by name and/or status ("active", "pending" or "blocked")
+$termii->allSenderId(name: 'Acme', status: 'active');
 
 // Request a new Sender ID
 $termii->submitSenderId(senderId: 'Acme', useCase: 'Transactional alerts', company: 'Acme Inc');
@@ -141,6 +148,14 @@ $termii->sendMessage(
     mediaUrl: 'https://example.com/image.png',
     mediaCaption: 'An optional caption'
 );
+```
+
+### Send a message from an auto-generated number
+
+Termii picks a number for the destination country, so no Sender ID is needed.
+
+```php
+$termii->sendMessageWithNumber(to: '2348012345678', sms: 'Hello from Lara-Termii!');
 ```
 
 ### Send OTP
@@ -289,11 +304,11 @@ $termii->sendCampaign(
     phonebookId: 'pb-id',
     channel: 'generic',
     messageType: 'plain',
+    campaignType: 'personalized',      // "regular" or "personalized"
+    scheduleSmsStatus: 'regular',      // "regular" or "scheduled"
     options: [
-        'campaign_type' => 'personalized',
         'remove_duplicate' => 'yes',
-        // 'schedule_time' => '30-06-2026 6:00',
-        // 'schedule_sms_status' => 'scheduled',
+        // 'schedule_time' => '30-06-2026 6:00', // required when scheduled
     ]
 );
 

@@ -228,21 +228,85 @@ it('bulk-adds contacts from raw csv contents', function () {
     $this->app->make(LaraTermii::class)
         ->addContactsFromContents('pb-1', "phone_number\n2348012345678\n", 'contacts.csv', '234');
 
-    Http::assertSent(fn ($r) => $r->method() === 'POST'
-        && $r->url() === termiiUrl('phonebooks/contacts/upload'));
+    Http::assertSent(function ($r) {
+        if ($r->method() !== 'POST' || $r->url() !== termiiUrl('phonebooks/contacts/upload')) {
+            return false;
+        }
+
+        $contact = collect($r->data())->firstWhere('name', 'contact');
+
+        return $contact !== null
+            && json_decode($contact['contents'], true) === [
+                'pid' => 'pb-1',
+                'country_code' => '234',
+                'api_key' => 'test-api-key',
+            ];
+    });
 });
 
 it('sends and manages campaigns', function () {
     $termii = $this->app->make(LaraTermii::class);
 
-    $termii->sendCampaign('234', 'Acme', 'Hello', 'pb-1', 'generic', 'plain', ['campaign_type' => 'personalized']);
+    $termii->sendCampaign('234', 'Acme', 'Hello', 'pb-1', 'generic', 'plain', 'personalized');
     $termii->campaigns();
     $termii->campaignHistory('camp-1');
     $termii->retryCampaign('camp-1');
 
     Http::assertSent(fn ($r) => $r->url() === termiiUrl('sms/campaigns/send')
-        && $r['phonebook_id'] === 'pb-1' && $r['campaign_type'] === 'personalized' && $r['sender_id'] === 'Acme');
+        && $r['phonebook_id'] === 'pb-1' && $r['campaign_type'] === 'personalized'
+        && $r['schedule_sms_status'] === 'regular' && $r['sender_id'] === 'Acme');
     Http::assertSent(fn ($r) => $r->method() === 'GET' && str_contains($r->url(), '/api/sms/campaigns?'));
     Http::assertSent(fn ($r) => $r->method() === 'GET' && str_contains($r->url(), '/api/sms/campaigns/camp-1'));
     Http::assertSent(fn ($r) => $r->method() === 'PATCH' && str_contains($r->url(), '/api/sms/campaigns/camp-1'));
+});
+
+it('lets campaign options override the default fields', function () {
+    $this->app->make(LaraTermii::class)->sendCampaign(
+        '234',
+        'Acme',
+        'Hello',
+        'pb-1',
+        'generic',
+        'plain',
+        'regular',
+        'scheduled',
+        ['schedule_time' => '30-06-2027 06:00']
+    );
+
+    Http::assertSent(fn ($r) => $r->url() === termiiUrl('sms/campaigns/send')
+        && $r['schedule_sms_status'] === 'scheduled'
+        && $r['schedule_time'] === '30-06-2027 06:00');
+});
+
+it('sends a message from an auto-generated number', function () {
+    $this->app->make(LaraTermii::class)->sendMessageWithNumber('2348012345678', 'Hello there');
+
+    Http::assertSent(fn ($r) => $r->method() === 'POST'
+        && $r->url() === termiiUrl('sms/number/send')
+        && $r['to'] === '2348012345678'
+        && $r['sms'] === 'Hello there'
+        && ! array_key_exists('from', $r->data()));
+});
+
+it('filters sender ids by name and status', function () {
+    $this->app->make(LaraTermii::class)->allSenderId('Acme', 'active');
+
+    Http::assertSent(fn ($r) => $r->method() === 'GET'
+        && strpos($r->url(), termiiUrl('sender-id')) === 0
+        && $r['name'] === 'Acme'
+        && $r['status'] === 'active');
+});
+
+it('fetches the history of a single message by id', function () {
+    $this->app->make(LaraTermii::class)->history('msg-123');
+
+    Http::assertSent(fn ($r) => $r->method() === 'GET'
+        && strpos($r->url(), termiiUrl('sms/inbox')) === 0
+        && $r['message_id'] === 'msg-123');
+});
+
+it('ships a v4 default base url', function () {
+    $config = require __DIR__.'/../../config/termii.php';
+
+    expect($config['base_url'])->toBe('https://v4.api.termii.com');
 });

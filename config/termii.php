@@ -27,7 +27,7 @@ return [
     |
     */
 
-    'base_url' => env('TERMII_BASE_URL', 'https://v3.api.termii.com'),
+    'base_url' => env('TERMII_BASE_URL', 'https://v4.api.termii.com'),
 
     /*
     |--------------------------------------------------------------------------
