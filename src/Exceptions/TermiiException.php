@@ -23,4 +23,12 @@ class TermiiException extends InvalidArgumentException
             .'or pass the "from" argument explicitly.'
         );
     }
+
+    public static function esimAuthenticationFailed(): self
+    {
+        return new self(
+            'Termii eSIM authentication did not return a token. Check your API key '
+            .'and the response of the esim/authenticate endpoint.'
+        );
+    }
 }

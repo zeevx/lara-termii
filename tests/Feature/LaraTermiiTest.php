@@ -278,16 +278,6 @@ it('lets campaign options override the default fields', function () {
         && $r['schedule_time'] === '30-06-2027 06:00');
 });
 
-it('sends a message from an auto-generated number', function () {
-    $this->app->make(LaraTermii::class)->sendMessageWithNumber('2348012345678', 'Hello there');
-
-    Http::assertSent(fn ($r) => $r->method() === 'POST'
-        && $r->url() === termiiUrl('sms/number/send')
-        && $r['to'] === '2348012345678'
-        && $r['sms'] === 'Hello there'
-        && ! array_key_exists('from', $r->data()));
-});
-
 it('filters sender ids by name and status', function () {
     $this->app->make(LaraTermii::class)->allSenderId('Acme', 'active');
 

@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Illuminate\Http\Client\Response allSenderId(?string $name = null, ?string $status = null)
  * @method static \Illuminate\Http\Client\Response submitSenderId(string $senderId, string $useCase, string $company)
  * @method static \Illuminate\Http\Client\Response sendMessage(string $to, ?string $from, string $sms, ?string $channel = null, ?string $mediaUrl = null, ?string $mediaCaption = null, string $type = 'plain')
- * @method static \Illuminate\Http\Client\Response sendMessageWithNumber(string $to, string $sms)
  * @method static \Illuminate\Http\Client\Response sendOTP(string $to, ?string $from, string $messageType, int $pinAttempts, int $pinTimeToLive, int $pinLength, string $pinPlaceholder, string $messageText, ?string $channel = null, ?string $pinType = null)
  * @method static \Illuminate\Http\Client\Response sendVoiceOTP(string $to, int $pinAttempts, int $pinTimeToLive, int $pinLength)
  * @method static \Illuminate\Http\Client\Response sendVoiceCall(string $to, int $code)
@@ -37,6 +36,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Illuminate\Http\Client\Response campaigns()
  * @method static \Illuminate\Http\Client\Response campaignHistory(string $campaignId)
  * @method static \Illuminate\Http\Client\Response retryCampaign(string $campaignId)
+ * @method static \Zeevx\LaraTermii\LaraTermiiEsim esim()
  *
  * @see LaraTermii
  */

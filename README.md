@@ -150,14 +150,6 @@ $termii->sendMessage(
 );
 ```
 
-### Send a message from an auto-generated number
-
-Termii picks a number for the destination country, so no Sender ID is needed.
-
-```php
-$termii->sendMessageWithNumber(to: '2348012345678', sms: 'Hello from Lara-Termii!');
-```
-
 ### Send OTP
 
 ```php
@@ -315,6 +307,27 @@ $termii->sendCampaign(
 $termii->campaigns();                          // fetch all
 $termii->campaignHistory(campaignId: 'camp-id');
 $termii->retryCampaign(campaignId: 'camp-id');
+```
+
+### eSIMs (Sotel)
+
+Termii's eSIM API uses its own bearer-token authentication, so it is exposed
+as a sub-client. It shares your configured API key and base URL, exchanges the
+key for a token on the first call, and reuses that token for the lifetime of
+the instance. Call `authenticate()` yourself only to refresh an expired token.
+
+```php
+$esim = $termii->esim();
+
+$esim->dataPlans(country: 'NG', type: 'LOCAL');   // both filters optional
+$esim->createEsim(productId: 'prod-id', iso3: 'NGA');
+$esim->purchasePlan(iccid: '894...', productId: 'prod-id', iso3: 'NGA');
+$esim->qrCode(iccid: '894...');
+$esim->profile(iccid: '894...');
+$esim->usage(iccid: '894...');
+$esim->planStatus(iccid: '894...');
+$esim->esims(page: 0, size: 15);
+$esim->countries(page: 0, size: 15);
 ```
 
 ## Error handling

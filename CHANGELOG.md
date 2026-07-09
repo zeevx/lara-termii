@@ -10,8 +10,11 @@ placement were confirmed correct; the changes below cover the differences
 that were found.
 
 ### Added
-- `sendMessageWithNumber()` for the Number API (`sms/number/send`): send a
-  message from a Termii auto-generated number without a Sender ID.
+- eSIM (Sotel) support via a new `$termii->esim()` sub-client
+  (`LaraTermiiEsim`). It shares the configured API key and base URL, handles
+  the eSIM API's bearer-token authentication automatically, and wraps all nine
+  endpoints: `dataPlans()`, `createEsim()`, `purchasePlan()`, `qrCode()`,
+  `profile()`, `usage()`, `planStatus()`, `esims()` and `countries()`.
 - `allSenderId()` now accepts optional `name` and `status` filters.
 - `history()` now accepts an optional `message_id` to fetch a single report.
 - `sendCampaign()` now exposes `campaign_type` and `schedule_sms_status`
@@ -26,6 +29,10 @@ that were found.
 - The constructor fallback, README and tests now consistently use the
   `https://v4.api.termii.com` default base URL that the config file already
   used.
+- Internal: `LaraTermii` and `LaraTermiiEsim` were split into per-area traits
+  under `Zeevx\LaraTermii\Concerns\Engage` (account, sender IDs, messaging,
+  OTP, phonebooks, contacts, campaigns) and `Zeevx\LaraTermii\Concerns\Sotel`
+  (auth, eSIMs, plans). The public API is unchanged.
 
 ### Fixed
 - `addContactsFromContents()` (and therefore `addContactsFromFile()`) now
